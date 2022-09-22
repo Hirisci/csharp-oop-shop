@@ -11,43 +11,63 @@ using System.Threading.Tasks;
 
 namespace csharp_oop_shop
 {
-    internal class Product
+    internal abstract class Product
     {
+        protected int _idCoount = 0;
+        protected string _typeCode;
+        public int Id { get;}
         public string Code { get;}
         public string Name { get ; set; }
-        public string Description { get; set; }
-        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+        public decimal PriceUnitary { get; set; }
         public int Iva { get; set; }
 
 
-        public Product(string name, string description, decimal price, int iva)
+        protected Product()
         {
+            Id = ++_idCoount;
+        }
+
+        protected Product( string name, int quantity, decimal priceUnitary, int iva) :this()
+        {
+            _typeCode = "00";
             Code = FullCode();
             Name = name;
-            Description = description;
-            Price = price;
+            Quantity = quantity;
+            PriceUnitary = priceUnitary;
             Iva = iva;
         }
 
-        private int GetRndCode()
+        //Calcolo il prezzo Complessivo in base alla quantitá 
+        protected float Taxbase()
         {
-            Random rnd = new Random();
-            return rnd.Next(1, 10_000_000);
+            return (float)PriceUnitary * Quantity;
         }
 
-        public string TaxPrice()
+        // calcolo tasse
+        public float Taxes()
         {
-            return String.Format("{0:F2}", Price * (1 + ((decimal)Iva / 100)));
+            return Taxbase() * (Iva / 100.0f);
         }
 
+        // prezzo finale a cui devo aggiugnere il contenitore
+        public virtual float TaxPrice()
+        {
+            return Taxbase() + Taxes();
+        }
+
+        // Äccessioria per stampa a Schermo
         public string FullName()
         {
             return $"{Code} | {Name}";
         }
 
+
+        //Genera il codice articolo
         private string FullCode()
         {
-            return GetRndCode().ToString().PadLeft( 8 , '0');
+            string factoryCode = "9555432";
+            return factoryCode + Convert.ToString(Id).PadLeft(4,'0')+ _typeCode;
         }
 
     }
